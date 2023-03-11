@@ -1,3 +1,5 @@
+from operator import methodcaller
+
 with open(r'..\input\input.txt') as f:
     raw_input = f.readlines() # Yields a list of every line in the input file.
 
@@ -6,105 +8,41 @@ with open(r'..\input\input.txt') as f:
 #########
 cleaned_lines = [item.strip('\n') for item in raw_input]
 
-stack_contents = []
+# Split on ',', then split resulting lists on '-'.
+# Example: [['94-95','100-101']] -> [['94', '95], ['100','101]]
+elf_pairs = [list(map(methodcaller('split', '-'), pair.split(','))) for pair in cleaned_lines]
 
-line_count = -1
-for line in cleaned_lines:
-    line_count += 1
-    if line:
-        stack_contents.append(line)
-    else:
-        break
+def convert_bounds_to_set(bound_list):
+    '''
+    Example: [['94', '95], ['100','101]] -> [{94, 95}, {100, 101}]
+    '''
+    lower_bound = int(bound_list[0])
+    upper_bound = int(bound_list[1])
+    return set(range(lower_bound, upper_bound + 1))
 
-line_numbers = stack_contents.pop()
-movement_instructions = cleaned_lines[line_count + 1:]
-movement_instructions = [list(map(int, instruction.split(' ')[1::2])) for instruction in movement_instructions]
+# Convert to ranges and then to sets.
+# Example: [['94', '95], ['100','101]] -> [{94, 95}, {100, 101}]
+elf_pairs = [list(map(convert_bounds_to_set, pair)) for pair in elf_pairs]
 
-# Specify how many characters we expect a single box to be represented by.
-BOX_CHAR_SIZE = 3
+count_of_totally_overlapped_pairs = 0
 
-class Box:
-    
-    def __init__(self, box_representation):
-        self.box_contents = box_representation
+for pair in elf_pairs:
+    first = pair[0]
+    second = pair[1]
+    # If either range of numbers is a subset of the other...
+    count_of_totally_overlapped_pairs += first.issubset(second) or second.issubset(first)
 
-    def __repr__(self):
-        return self.box_contents
+print(f'Number of totally overlapped pairs: {count_of_totally_overlapped_pairs}')
 
-    def __str__(self):
-        return self.box_contents
+#########
+# PART 2
+#########
+count_of_partially_overlapped_pairs = 0
 
-    def __bool__(self):
-        return True if self.box_contents != '   ' else False
-    
-    def __len__(self):
-        return len(self.box_contents)
+for pair in elf_pairs:
+    first = pair[0]
+    second = pair[1]
+    # If the intersection between the sets is non-zero, increment
+    count_of_partially_overlapped_pairs += 1 if first.intersection(second) else 0
 
-parsed_boxes = []
-
-for line in stack_contents:
-    temp_boxes = []
-    i = 0
-    while i < len(line):
-        temp_boxes.append(line[i:i + BOX_CHAR_SIZE])
-        i += BOX_CHAR_SIZE + 1
-    parsed_boxes.append(list(map(Box, temp_boxes)))
-        
-
-class BoxGrid:
-    
-    def __init__(self, boxes):
-        self.stacks = [[] for _ in range(len(boxes[0]))]
-        self.populate_grid(boxes)
-        
-    def populate_grid(self, boxes):
-        reversed_boxes = boxes[::-1]
-        for line_of_boxes in reversed_boxes:
-            i = 0
-            while i < len(line_of_boxes):
-                box = line_of_boxes[i]
-                if box:
-                    self.stacks[i].append(box)
-                i += 1
-
-    def __repr__(self):
-        empty_string = ''
-        max_stack_size = max(list(map(len, self.stacks)))
-        i = max_stack_size + 1
-
-        while i >= 0:
-            for stack in self.stacks:
-                if i < len(stack):
-                    empty_string += str(stack[i]) + ' '
-            i -= 1
-            empty_string += '\n'
-        return empty_string
-
-    def move_box(self, origin_stack, target_stack):
-        self.stacks[target_stack ].append(self.stacks[origin_stack].pop())
-
-    def dev_display_grid(self):
-        for i in self.stacks:
-            print(i)
-    
-    def answer(self):
-        self.string = ""
-        for stack in self.stacks:
-            self.string += str(stack[-1])
-        print(self.string)
-
-grid = BoxGrid(parsed_boxes)
-
-grid.dev_display_grid()
-
-print('#############')
-
-for instruction in movement_instructions:
-    times = instruction[0]
-    origin = instruction[1] - 1
-    target = instruction[2] - 1
-
-    for _ in range(times):
-        grid.move_box(origin, target)
-grid.dev_display_grid()
-grid.answer()
+print(f'Number of partially overlapped pairs: {count_of_partially_overlapped_pairs}')

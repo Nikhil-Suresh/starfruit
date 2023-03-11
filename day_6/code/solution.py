@@ -15,6 +15,21 @@ for received_character in datastream:
     
     check_for_marker = len(set(buffer)) == 4
     if check_for_marker == True:
-        print(f"Marker found at character {number_of_characters_received}!")
+        print(f"Start-of-packet marker found at character {number_of_characters_received}!")
         break
 
+#####
+# Part 2
+#####
+
+number_of_characters_received = 0
+for received_character in datastream:
+    number_of_characters_received  += 1
+    buffer.append(received_character)
+    if len(buffer) > 14:
+        buffer.popleft() # Remove the oldest character from the buffer.
+    
+    check_for_marker = len(set(buffer)) == 14
+    if check_for_marker == True:
+        print(f"Start-of-message marker found at character {number_of_characters_received}!")
+        break

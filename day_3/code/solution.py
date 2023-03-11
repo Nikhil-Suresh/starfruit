@@ -84,4 +84,25 @@ for divided_rucksack in divided_rucksacks_with_priorities:
 
 print(priority)
 
+#########
+# PART 2
+#########
+
+# Remove compartments as they aren't used in Part 2, and use sets as we're seeking intersections.
+undivided_rucksacks_with_priorities = [set(comp_1).union(set(comp_2)) for comp_1, comp_2 in divided_rucksacks_with_priorities]
+
+group_start = 0
+priority = 0
+while group_start < len(undivided_rucksacks_with_priorities):
+    first_elf = undivided_rucksacks_with_priorities[group_start]
+    second_elf = undivided_rucksacks_with_priorities[group_start + 1]
+    third_elf = undivided_rucksacks_with_priorities[group_start + 2]
+    # Check the intersection of all three sets, then pop the badge out.
+    badge = first_elf.intersection(second_elf).intersection(third_elf).pop()
+    priority += badge.priority
+    group_start += 3 # Move on to the next group (3 elves up the line)
+
+print(priority)
+
+
 

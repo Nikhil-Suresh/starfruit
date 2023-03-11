@@ -4,6 +4,7 @@ with open(r'..\input\input.txt') as f:
 #########
 # PART 1
 #########
+print("\nAnswer to part 1:")
 cleaned_lines = [item.strip('\n') for item in raw_input]
 
 stack_contents = []
@@ -92,7 +93,25 @@ class BoxGrid:
         Returns:
             None
         """
-        self.stacks[target_stack ].append(self.stacks[origin_stack].pop())
+        self.stacks[target_stack].append(self.stacks[origin_stack].pop())
+
+    def advanced_move_box(self, origin_stack, target_stack, number_to_move):
+        """Moves a number of boxes from one stack to another.
+        Args:
+            origin_stack (int): The index of the stack to move the box from.
+            target_stack (int): The index of the stack to move the box to.
+            number_to_move (int): The number of boxes to move.
+        
+        Returns:
+            None
+        """
+        # Pop target boxes from the origin stack to a temporary list.
+        boxes_to_move = []
+        for _ in range(number_to_move):
+            boxes_to_move.append(self.stacks[origin_stack].pop())
+        # boxes_to_move are in reverse order, and we want original ordering.
+        boxes_to_move = boxes_to_move[::-1]
+        self.stacks[target_stack] += boxes_to_move
 
     def display_grid(self):
         """Displays the grid in a more readable format.
@@ -110,9 +129,6 @@ class BoxGrid:
 
 grid = BoxGrid(parsed_boxes)
 
-grid.display_grid()
-print('#############')
-
 for instruction in movement_instructions:
     times = instruction[0]
     origin = instruction[1] - 1
@@ -120,5 +136,31 @@ for instruction in movement_instructions:
 
     for _ in range(times):
         grid.move_box(origin, target)
-grid.display_grid()
+grid.answer()
+
+#########
+# PART 2
+#########
+
+print("\nAnswer to part 2:")
+
+parsed_boxes = []
+
+# Parse the boxes into a list of lists of Box objects.
+for line in stack_contents:
+    temp_boxes = [] # Temporary list of strings, representing the boxes.
+    i = 0
+    while i < len(line):
+        temp_boxes.append(line[i:i + BOX_CHAR_SIZE]) # Append the next box to the list.
+        i += BOX_CHAR_SIZE + 1 # Move forward the size of one box, then skip the space between boxes.
+    parsed_boxes.append(list(map(Box, temp_boxes))) # Map the list of strings to a list of Box objects.
+
+grid = BoxGrid(parsed_boxes)
+
+for instruction in movement_instructions:
+    times = instruction[0]
+    origin = instruction[1] - 1 # Subtract 1 to account for 1-indexing.
+    target = instruction[2] - 1 # Subtract 1 to account for 1-indexing.
+    grid.advanced_move_box(origin, target, times)
+
 grid.answer()

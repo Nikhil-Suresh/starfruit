@@ -35,6 +35,7 @@ class Box:
         return self.box_contents
 
     def __bool__(self):
+        """Returns True if the box is not empty, False otherwise."""
         return True if self.box_contents != '   ' else False
     
     def __len__(self):
@@ -42,22 +43,24 @@ class Box:
 
 parsed_boxes = []
 
+# Parse the boxes into a list of lists of Box objects.
 for line in stack_contents:
-    temp_boxes = []
+    temp_boxes = [] # Temporary list of strings, representing the boxes.
     i = 0
     while i < len(line):
-        temp_boxes.append(line[i:i + BOX_CHAR_SIZE])
-        i += BOX_CHAR_SIZE + 1
-    parsed_boxes.append(list(map(Box, temp_boxes)))
+        temp_boxes.append(line[i:i + BOX_CHAR_SIZE]) # Append the next box to the list.
+        i += BOX_CHAR_SIZE + 1 # Move forward the size of one box, then skip the space between boxes.
+    parsed_boxes.append(list(map(Box, temp_boxes))) # Map the list of strings to a list of Box objects.
         
 
 class BoxGrid:
-    
+    """A class representing the grid of boxes."""
     def __init__(self, boxes):
         self.stacks = [[] for _ in range(len(boxes[0]))]
         self.populate_grid(boxes)
         
     def populate_grid(self, boxes):
+        """Populates the grid with the boxes."""
         reversed_boxes = boxes[::-1]
         for line_of_boxes in reversed_boxes:
             i = 0
@@ -68,35 +71,46 @@ class BoxGrid:
                 i += 1
 
     def __repr__(self):
-        empty_string = ''
-        max_stack_size = max(list(map(len, self.stacks)))
+        grid_representation = ''
+        max_stack_size = max(list(map(len, self.stacks))) # The maximum size of any stack.
         i = max_stack_size + 1
 
         while i >= 0:
-            for stack in self.stacks:
-                if i < len(stack):
-                    empty_string += str(stack[i]) + ' '
-            i -= 1
-            empty_string += '\n'
-        return empty_string
-
+            for stack in self.stacks: # For each stack...
+                if i < len(stack): # If the stack is long enough to have a box at this index...
+                    grid_representation += str(stack[i]) + ' ' # Add the box to the grid string.
+            i -= 1 # Move to the next row.
+            grid_representation += '\n' # Represent the end of the row with a newline.
+        return grid_representation
+    
     def move_box(self, origin_stack, target_stack):
+        """Moves a box from one stack to another.
+        Args:
+            origin_stack (int): The index of the stack to move the box from.
+            target_stack (int): The index of the stack to move the box to.
+        
+        Returns:
+            None
+        """
         self.stacks[target_stack ].append(self.stacks[origin_stack].pop())
 
-    def dev_display_grid(self):
-        for i in self.stacks:
-            print(i)
+    def display_grid(self):
+        """Displays the grid in a more readable format.
+        Useful for debugging.
+        """
+        for stack in self.stacks:
+            print(stack)
     
     def answer(self):
-        self.string = ""
+        """Returns the top box of every stack."""
+        answer = ""
         for stack in self.stacks:
-            self.string += str(stack[-1])
-        print(self.string)
+            answer += str(stack[-1])
+        print(answer)
 
 grid = BoxGrid(parsed_boxes)
 
-grid.dev_display_grid()
-
+grid.display_grid()
 print('#############')
 
 for instruction in movement_instructions:
@@ -106,5 +120,5 @@ for instruction in movement_instructions:
 
     for _ in range(times):
         grid.move_box(origin, target)
-grid.dev_display_grid()
+grid.display_grid()
 grid.answer()

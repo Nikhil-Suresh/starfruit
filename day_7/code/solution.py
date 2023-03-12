@@ -57,25 +57,20 @@ def parse_file(object, parent):
 current_directory = None
 for row in raw_input:
     directory_change_object = re.match(CD_MATCH, row)
-    #print(f'Current row: {row}')
     if directory_change_object:
         # Create a new directory and set it as the current directory.
         directory_name = directory_change_object.group(1)
         if directory_name == '..': # Go up a directory.
-            #print(f'Changing to parent directory: {current_directory.parent}.')
             current_directory = current_directory.parent
         elif current_directory == None:
-            #print(f'Creating root directory {directory_name}.')
             current_directory = Directory(directory_name)
         else:
-            #print(f'Creating child directory {directory_name}.')
             new_directory = Directory(directory_name, parent=current_directory)
             current_directory.children.append(new_directory)
             current_directory = new_directory
     else:
         parsed_object = parse_file(row, parent=current_directory)
         if parsed_object:
-            #print(f"Parsed object: {parsed_object}.")
             current_directory.children.append(parsed_object)
 
 def find_root_directory(directory):

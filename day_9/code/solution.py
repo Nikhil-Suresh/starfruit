@@ -34,6 +34,7 @@ def calculate_movement_for_tail(tail_position, head_position):
     y_diff_sign = int(y_distance / abs(y_distance)) if y_distance != 0 else 0
 
     # TODO: This caught me out. The knot was 2 away in both X and Y dimensions.
+    # Addendum: Worth noting that this passed the test case!
     # The movement is exactly the same (1/-1, 1/-1), but my if statements were not catching it for ages.
     # Eventually I found many people were caught out on this on Reddit, and quickly realized where I was going wrong.
     # The clue this was happening? I found a case where y_distance == 7, which indicates the tail wasn't following.

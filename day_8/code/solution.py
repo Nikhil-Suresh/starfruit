@@ -105,11 +105,16 @@ for coordinate in coordinates_to_check:
     # Higher Y represents lower down the grid.
     # Higher X represents further to the right on the grid.
 
-    # The coordinates will be iterated over in order of increasing Y.
-    # 
+    # The coordinates will be iterated over in order of increasing Y
+    # Thus, the trees in the lines above the target tree will be iterated over in order of decreasing Y (reverse the list)
+    # This simulates 'looking up' from the tree - otherwise we'd start by counting from the edge towards the tree!
+    # It should be the tree towards the edge!
+    # TODO: This is horrendously slow, and pretty easy to fix (easy enough that I'm not going to bother)
     trees_in_line_above = [coord for coord in coordinates_to_check if coord[0] == x and coord[1] < y][::-1]
     trees_in_line_below = [coord for coord in coordinates_to_check if coord[0] == x and coord[1] > y]
 
+    # The coordinates will be iterated over in order of increasing X.
+    # Thus, the trees in the lines to the left of the target tree will be iterated over in order of decreasing X (reverse the list)
     trees_in_line_to_left = [coord for coord in coordinates_to_check if coord[1] == y and coord[0] < x][::-1]
     trees_in_line_to_right = [coord for coord in coordinates_to_check if coord[1] == y and coord[0] > x]
 
